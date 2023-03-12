@@ -22,7 +22,10 @@ export default {
 <template>
   <div class="card">
     <div class="img-container follow">
-      <a :href="item.link" @click.prevent="$emit('get-user-profile', item)">
+      <a
+        :href="item.link"
+        @click.prevent="$emit('get-user-profile', item)"
+      >
         <img
           :src="item.picture"
           class="follow-img"
@@ -31,9 +34,15 @@ export default {
           alt="image du follower"
         />
       </a>
-      <FollowIcon :followed="item.followed" @click="$emit('follow-user', item)" />
+      <FollowIcon
+        :followed="item.followed"
+        @click.native="$emit('follow-user', item)"
+      />
     </div>
-    <a :href="item.link" @click.prevent="$emit('get-user-profile', item)">
+    <a
+      :href="item.link"
+      @click.prevent="$emit('get-user-profile', item)"
+    >
       {{ item.pseudo }}
     </a>
   </div>

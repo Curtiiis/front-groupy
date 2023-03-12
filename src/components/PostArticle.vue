@@ -520,7 +520,7 @@ button.orange {
       }
       & .options-comment {
         display: flex;
-        align-items: end;
+        align-items: flex-end;
         justify-content: space-between;
         width: 50px;
         height: 100%;

@@ -1,6 +1,9 @@
 <template>
   <div class="home__container">
-    <ValidBox :validBox="showValidBox" @click.native="closeValidBox" />
+    <ValidBox
+      :validBox="showValidBox"
+      @click.native="closeValidBox"
+    />
     <SaveBox v-show="showSaveBox" @click.native="closeSaveBox" />
     <DeleteBox v-if="showDeleteBox" @click.native="closeDeleteBox" />
     <ErrorBox v-show="showErrorBox" @click.native="closeErrorBox" />
@@ -8,7 +11,10 @@
 
     <div class="main">
       <!-- NAVBAR -->
-      <Navbar @get-all-posts="getAllPosts" @get-user-profile="getUserProfile" />
+      <Navbar
+        @get-all-posts="getAllPosts"
+        @get-user-profile="getUserProfile"
+      />
 
       <!-- MAIN CONTENT -->
       <transition name="fade" appear>
@@ -157,7 +163,11 @@ export default {
 
     followUser(item) {
       http
-        .post(`user/follow/${item.userId}`, {}, this.setAuthorization())
+        .post(
+          `user/follow/${item.userId}`,
+          {},
+          this.setAuthorization()
+        )
         .then(() => {
           this.postDataX
             .filter((x) => x.userId == item.userId)
@@ -174,7 +184,10 @@ export default {
 
     getSuggestions() {
       http
-        .get(`user/suggestions/${this.userId}`, this.setAuthorization())
+        .get(
+          `user/suggestions/${this.userId}`,
+          this.setAuthorization()
+        )
         .then((response) => utils.commitSuggestions(response.data))
         .catch((error) => console.log(error));
     },
@@ -294,7 +307,10 @@ export default {
 
     onResize() {
       if (window.innerWidth >= 768) {
-        this.tabletView = this.showSearchBar = this.showNavbarLogo = true;
+        this.tabletView =
+          this.showSearchBar =
+          this.showNavbarLogo =
+            true;
         this.showSearchBtn = false;
       } else {
         this.tabletView = this.showSearchBar = false;
