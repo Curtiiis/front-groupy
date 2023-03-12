@@ -4,7 +4,7 @@
 
     <div class="welcome__title">
       <p>BIENVENUE SUR</p>
-      <h1><span>GROUPYY</span> APP</h1>
+      <h1><span>GROUPY</span> APP</h1>
     </div>
 
     <nav class="welcome__nav">
