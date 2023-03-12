@@ -1,7 +1,18 @@
 <template>
-  <div class="post__reaction">
-    <button class="comment-icon" @click="showComments = !showComments" name="commentaires">
-      <svg class="comment-icon" :class="{orange: showComments}" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <div class="post__reaction" @click="showComments = !showComments">
+    <label for="comment-check" class="comment-icon">
+      <input
+        type="checkbox"
+        name="comment-checkbox"
+        v-model="showComments"
+        hidden
+      />
+      <svg
+        class="comment-icon"
+        :class="{ orange: showComments }"
+        viewBox="0 0 32 32"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <g data-name="Layer 25">
           <path
             d="M24 22a1 1 0 0 1-.64-.23L18.84 18H17a8 8 0 0 1 0-16h6a8 8 0 0 1 2 15.74V21a1 1 0 0 1-.58.91A1 1 0 0 1 24 22ZM17 4a6 6 0 0 0 0 12h2.2a1 1 0 0 1 .64.23L23 18.86v-1.94a1 1 0 0 1 .86-1A6 6 0 0 0 23 4Z"
@@ -11,14 +22,14 @@
           ></path>
         </g>
       </svg>
-    </button>
-    <p id="comments-counter">{{ commentsCount }}</p>
+    </label>
+    <p id="comments-counter">{{ post.commentsCount }}</p>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'CommentIcon',
+  name: "CommentIcon",
   props: {
     value: {
       type: Boolean,
@@ -34,24 +45,25 @@ export default {
       showComments: false,
     };
   },
+  methods: {
+    toggleComments() {
+      this.showComments = !this.showComments;
+      this.$emit("comment", this.showComments);
+    },
+  },
   created() {
     this.showComments = this.value;
   },
-  methods: {
-    colorSvg() {
-      this.$emit('colorize');
-    },
-  },
   watch: {
     showComments(newValue) {
-      this.$emit('input', newValue);
+      this.$emit("input", newValue);
     },
   },
 };
 </script>
 
 <style scoped lang="scss">
-button.comment-icon {
+.comment-icon {
   border: none;
   background: none;
   cursor: pointer;

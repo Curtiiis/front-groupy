@@ -4,7 +4,10 @@
       <!-- Infos Left -->
       <div class="post__infos__left">
         <div class="img-container follow">
-          <a :href="post.link" @click.prevent="$emit('get-user-profile', post)">
+          <a
+            :href="post.link"
+            @click.prevent="$emit('get-user-profile', post)"
+          >
             <img
               :src="post.picture"
               class="follow-img"
@@ -33,7 +36,10 @@
         >
           {{ post.pseudo }}
         </a>
-        <CreatedSince :createdSince="createdSince(post)" :updated="post.updated" />
+        <CreatedSince
+          :createdSince="createdSince(post)"
+          :updated="post.updated"
+        />
       </div>
       <!-- Infos Right -->
       <Options :post="post" />
@@ -43,46 +49,89 @@
       <div class="post__title" v-show="post.title != 'undefined'">
         <p class="bold fz16">{{ post.title }}</p>
       </div>
-      <div class="post__text blue-grey" v-show="post.text != 'undefined'">
+      <div
+        class="post__text blue-grey"
+        v-show="post.text != 'undefined'"
+      >
         <p>
           {{ post.text }}
         </p>
       </div>
     </div>
     <div class="post__reactions">
-      <LikeIcon :liked="post.liked" :likesCount="post.likes" @click.native="likePost(post)" />
-
-      <CommentIcon
-        :showComments="post.showComments"
-        :commentsCount="post.commentsCount"
-        @click.native="toggleComments(post)"
+      <LikeIcon
+        :value="post.liked"
+        :likesCount="post.likes"
+        @like="likePost(post)"
       />
 
-      <SaveIcon :saved="post.saved" :savesCount="post.saves" @click.native="savePost(post)" />
+      <div
+        class="post__reaction"
+        @click="showComments = !showComments"
+      >
+        <label for="comment-check" class="comment-icon">
+          <input
+            type="checkbox"
+            name="comment-checkbox"
+            v-model="showComments"
+            hidden
+          />
+          <svg
+            class="comment-icon"
+            :class="{ orange: showComments }"
+            viewBox="0 0 32 32"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g data-name="Layer 25">
+              <path
+                d="M24 22a1 1 0 0 1-.64-.23L18.84 18H17a8 8 0 0 1 0-16h6a8 8 0 0 1 2 15.74V21a1 1 0 0 1-.58.91A1 1 0 0 1 24 22ZM17 4a6 6 0 0 0 0 12h2.2a1 1 0 0 1 .64.23L23 18.86v-1.94a1 1 0 0 1 .86-1A6 6 0 0 0 23 4Z"
+              ></path>
+              <path
+                d="M19 9h2v2h-2zM14 9h2v2h-2zM24 9h2v2h-2zM8 30a1 1 0 0 1-.42-.09A1 1 0 0 1 7 29v-3.26a8 8 0 0 1-1.28-15 1 1 0 1 1 .82 1.82 6 6 0 0 0 1.6 11.4 1 1 0 0 1 .86 1v1.94l3.16-2.63a1 1 0 0 1 .64-.27H15a5.94 5.94 0 0 0 4.29-1.82 1 1 0 0 1 1.44 1.4A8 8 0 0 1 15 26h-1.84l-4.52 3.77A1 1 0 0 1 8 30Z"
+              ></path>
+            </g>
+          </svg>
+        </label>
+        <p id="comments-counter">{{ post.commentsCount }}</p>
+      </div>
+
+      <SaveIcon
+        :value="post.saved"
+        :savesCount="post.saves"
+        @save="savePost(post)"
+      />
     </div>
-    <!-- <div class="post__reactions">
-      <LikeIcon :liked="post.liked" v-model="post.liked" :likesCount="post.likes" @click.native="likePost(post)" />
-
-      <CommentIcon v-model="post.showComments" :commentsCount="post.commentsCount" />
-
-      <SaveIcon :saved="post.saved" v-model="post.saved" :savesCount="post.saves" @click.native="savePost(post)" />
-    </div> -->
 
     <!-- Comments -->
     <transition name="fadeUp" appear>
-      <div class="post__comments" id="post-comments" v-show="post.showComments">
+      <div
+        class="post__comments"
+        id="post-comments"
+        v-show="showComments"
+      >
         <div class="post__comments-container">
-          <div class="posted" v-for="comment in post.comments" :key="comment.commentId">
+          <div
+            class="posted"
+            v-for="comment in post.comments"
+            :key="comment.commentId"
+          >
             <div class="comment-container">
               <div>
                 <div class="post__comments-infos">
                   <a href="#" class="bold">{{ comment.pseudo }}</a>
-                  <CreatedSince :createdSince="createdSince(comment)" :updated="comment.updated" />
+                  <CreatedSince
+                    :createdSince="createdSince(comment)"
+                    :updated="comment.updated"
+                  />
                 </div>
                 <p v-if="!comment.updating">
                   {{ comment.text }}
                 </p>
-                <form id="update-comment-form" @submit.prevent="modifyComment(comment)" v-else>
+                <form
+                  id="update-comment-form"
+                  @submit.prevent="modifyComment(comment)"
+                  v-else
+                >
                   <textarea
                     rows="1"
                     cols="50"
@@ -92,8 +141,12 @@
                     v-model="updatedComment"
                     required
                     maxlength="250"
-                  />
-                  <button type="submit" class="upd-com-btn" name="publier">
+                  ></textarea>
+                  <button
+                    type="submit"
+                    class="upd-com-btn"
+                    name="publier"
+                  >
                     <SaveComment />
                   </button>
                 </form>
@@ -112,18 +165,23 @@
           </div>
         </div>
         <form @submit.prevent="createComment(post)">
-          <!-- v-model="post.commentText" -->
           <textarea
-            rows="2"
+            rows="1"
             cols="50"
             type="text"
             class="white-border text-comment-input"
             placeholder="Votre commentaire..."
-            @input="updateCommentText"
             required
             maxlength="250"
-          />
-          <button type="submit" class="orange br30 submit-comment-btn" name="poster">Poster</button>
+            v-model="message"
+          ></textarea>
+          <button
+            type="submit"
+            class="orange br30 submit-comment-btn"
+            name="poster"
+          >
+            Poster
+          </button>
         </form>
       </div>
     </transition>
@@ -143,6 +201,8 @@ export default {
     return {
       updatedComment: "",
       postFollowed: false,
+      showComments: false,
+      message: "",
     };
   },
   methods: {
@@ -159,7 +219,11 @@ export default {
 
     likePost(post) {
       http
-        .post(`posts/like/${post.postId}`, {}, this.setAuthorization())
+        .post(
+          `posts/like/${post.postId}`,
+          {},
+          this.setAuthorization()
+        )
         .then((res) => {
           res.status == 200 ? (post.likes -= 1) : (post.likes += 1);
         })
@@ -168,7 +232,11 @@ export default {
 
     savePost(post) {
       http
-        .post(`posts/saves/${post.postId}`, {}, this.setAuthorization())
+        .post(
+          `posts/saves/${post.postId}`,
+          {},
+          this.setAuthorization()
+        )
         .then((res) => {
           res.status == 200 ? (post.saves -= 1) : (post.saves += 1);
         })
@@ -177,17 +245,17 @@ export default {
 
     createComment(post) {
       http
-        .post(`comment/${post.postId}`, { text: post.commentText }, this.setAuthorization())
+        .post(
+          `comment/${post.postId}`,
+          { text: this.message },
+          this.setAuthorization()
+        )
         .then((res) => {
           post.comments = res.data.commentsArray;
-          post.commentText = "";
+          this.message = "";
           post.commentsCount++;
         })
         .catch((error) => console.log(error));
-    },
-
-    updateCommentText(event) {
-      this.$emit("update-comment-text", event.target.value);
     },
 
     openUpdateComment(comment) {
@@ -200,7 +268,11 @@ export default {
 
     modifyComment(comment) {
       http
-        .put(`comment/${comment.commentId}`, { text: this.updatedComment }, this.setAuthorization())
+        .put(
+          `comment/${comment.commentId}`,
+          { text: this.updatedComment },
+          this.setAuthorization()
+        )
         .then((res) => {
           comment.updating = false;
           this.updatedComment = "";
@@ -211,15 +283,24 @@ export default {
     },
 
     deleteComment(comment, post) {
-      if (!confirm("Voulez-vous vraiment supprimer ce commentaire ?")) {
+      if (
+        !confirm("Voulez-vous vraiment supprimer ce commentaire ?")
+      ) {
         return;
       }
       http
-        .delete(`comment/${comment.commentId}`, this.setAuthorization())
+        .delete(
+          `comment/${comment.commentId}`,
+          this.setAuthorization()
+        )
         .then(() => {
           setTimeout(() => {
-            let commentsArray = this.postDataX.find((x) => x.postId == post.postId).comments;
-            const index = commentsArray.findIndex((x) => x.commentId == comment.commentId);
+            let commentsArray = this.postDataX.find(
+              (x) => x.postId == post.postId
+            ).comments;
+            const index = commentsArray.findIndex(
+              (x) => x.commentId == comment.commentId
+            );
             commentsArray.splice(index, 1);
             post.commentsCount--;
           }, 500);
@@ -256,6 +337,11 @@ export default {
       if (timestamp >= 172800) {
         return days + " jours";
       }
+    },
+  },
+  watch: {
+    message(newValue) {
+      this.$emit("input", newValue);
     },
   },
   computed: {
@@ -315,7 +401,7 @@ button.orange {
     margin-top: 0 !important;
 
     &.createModale {
-      justify-content: flex-start;
+      justify-content: start;
     }
 
     &__left {
@@ -434,7 +520,7 @@ button.orange {
       }
       & .options-comment {
         display: flex;
-        align-items: flex-end;
+        align-items: end;
         justify-content: space-between;
         width: 50px;
         height: 100%;
@@ -464,6 +550,10 @@ button.orange {
     & form {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      textarea {
+        width: 75%;
+      }
     }
     & .text-comment-input,
     & #update-comment-text {
@@ -512,6 +602,21 @@ button.orange {
 @media screen and (min-width: 450px) {
   .post {
     border-radius: 20px;
+  }
+}
+
+.comment-icon {
+  border: none;
+  background: none;
+  cursor: pointer;
+  & svg.comment-icon {
+    width: 26px;
+    fill: #344767;
+    stroke-width: 0px;
+
+    &.orange {
+      fill: #fd7d63;
+    }
   }
 }
 

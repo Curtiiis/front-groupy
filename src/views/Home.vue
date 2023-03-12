@@ -129,6 +129,7 @@ export default {
       noPostMsg: "",
       noContent: false,
       numberPosts: 5,
+      showComments: false,
     };
   },
   methods: {
