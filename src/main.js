@@ -1,6 +1,7 @@
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
+import VueRouter from "vue-router";
 import Vuelidate from "vuelidate";
 import store from "./store/index";
 import http from "./js/http";
@@ -60,6 +61,7 @@ Vue.config.productionTip = false;
 export const bus = new Vue();
 
 Vue.use(Vuelidate);
+Vue.use(VueRouter);
 
 new Vue({
   router,
