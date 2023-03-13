@@ -560,7 +560,7 @@ button.orange {
       box-sizing: content-box;
       border-radius: 10px;
       border: 1px solid #344767;
-      padding: 5px;
+      padding: 8px 12px;
       font-family: "Poppins", sans-serif;
       font-size: 12px;
       letter-spacing: normal;
