@@ -23,7 +23,7 @@
         </g>
       </svg>
     </label>
-    <p id="comments-counter">{{ post.commentsCount }}</p>
+    <p id="comments-counter">{{ commentsCount }}</p>
   </div>
 </template>
 
@@ -44,12 +44,6 @@ export default {
     return {
       showComments: false,
     };
-  },
-  methods: {
-    toggleComments() {
-      this.showComments = !this.showComments;
-      this.$emit("comment", this.showComments);
-    },
   },
   created() {
     this.showComments = this.value;
