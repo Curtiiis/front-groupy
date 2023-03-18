@@ -34,111 +34,67 @@ var store = createStore(Vuex.Store, {
     showErrorBox: false,
   },
   getters: {
-    tokenGetter: (state) => {
-      return state.token;
-    },
-    isAdminGetter: (state) => {
-      return state.isAdmin;
-    },
-    userIdGetter: (state) => {
-      return state.userId;
-    },
-    followersGetter: (state) => {
-      return state.userFollowers;
-    },
-    imgPreviewGetter: (state) => {
-      return state.imgPreview;
-    },
-    postDataGetter: (state) => {
-      return state.postDataX;
-    },
-    suggestionsGetter: (state) => {
-      return state.suggestionsX;
-    },
-    savesGetter: (state) => {
-      return state.savesX;
-    },
-    allUsersGetter: (state) => {
-      return state.allUsersX;
-    },
-    userDataGetter: (state) => {
-      return state.userDataX;
-    },
-    userPictureGetter: (state) => {
-      return state.userPicture;
-    },
-    createGetter: (state) => {
-      return state.createModale;
-    },
-    updateGetter: (state) => {
-      return state.updateModale;
-    },
-    accountGetter: (state) => {
-      return state.showAccount;
-    },
-    showAdminPanelGetter: (state) => {
-      return state.showAdminPanel;
-    },
-    loaderGetter: (state) => {
-      return state.showLoader;
-    },
-    validBoxGetter: (state) => {
-      return state.showValidBox;
-    },
-    deleteBoxGetter: (state) => {
-      return state.showDeleteBox;
-    },
-    forbiddenBoxGetter: (state) => {
-      return state.showErrorBox;
-    },
-    saveBoxGetter: (state) => {
-      return state.showSaveBox;
-    },
-    noPostsGetter: (state) => {
-      return state.noPosts;
-    },
-    fileGetter: (state) => {
-      return state.selectedFile;
-    },
+    tokenGetter: (state) => state.token,
+    isAdminGetter: (state) => state.isAdmin,
+    userIdGetter: (state) => state.userId,
+    followersGetter: (state) => state.userFollowers,
+    imgPreviewGetter: (state) => state.imgPreview,
+    postDataGetter: (state) => state.postDataX,
+    suggestionsGetter: (state) => state.suggestionsX,
+    savesGetter: (state) => state.savesX,
+    allUsersGetter: (state) => state.allUsersX,
+    userDataGetter: (state) => state.userDataX,
+    userPictureGetter: (state) => state.userPicture,
+    createGetter: (state) => state.createModale,
+    updateGetter: (state) => state.updateModale,
+    accountGetter: (state) => state.showAccount,
+    showAdminPanelGetter: (state) => state.showAdminPanel,
+    loaderGetter: (state) => state.showLoader,
+    validBoxGetter: (state) => state.showValidBox,
+    deleteBoxGetter: (state) => state.showDeleteBox,
+    forbiddenBoxGetter: (state) => state.showErrorBox,
+    saveBoxGetter: (state) => state.showSaveBox,
+    noPostsGetter: (state) => state.noPosts,
+    fileGetter: (state) => state.selectedFile,
   },
   mutations: {
     resetState(state) {
-      (state.token = ""),
-        (state.userId = ""),
-        (state.userPseudo = ""),
-        (state.userLink = ""),
-        (state.userEmail = ""),
-        (state.userPicture = ""),
-        (state.userPosts = ""),
-        (state.selectedFile = ""),
-        (state.imgPreview = ""),
-        (state.userFollowers = []),
-        (state.userDataX = []),
-        (state.postDataX = []),
-        (state.suggestionsX = []),
-        (state.savesX = []),
-        (state.allUsersX = []),
-        (state.isAdmin = false),
-        (state.createModale = false),
-        (state.updateModale = false),
-        (state.showAccount = false),
-        (state.showAdminPanel = false),
-        (state.showLoader = false),
-        (state.showValidBox = false),
-        (state.showDeleteBox = false),
-        (state.showErrorBox = false),
-        (state.showSaveBox = false);
+      state.token = "";
+      state.userId = "";
+      state.userPseudo = "";
+      state.userLink = "";
+      state.userEmail = "";
+      state.userPicture = "";
+      state.userPosts = "";
+      state.selectedFile = "";
+      state.imgPreview = "";
+      state.userFollowers = [];
+      state.userDataX = [];
+      state.postDataX = [];
+      state.suggestionsX = [];
+      state.savesX = [];
+      state.allUsersX = [];
+      state.isAdmin = false;
+      state.createModale = false;
+      state.updateModale = false;
+      state.showAccount = false;
+      state.showAdminPanel = false;
+      state.showLoader = false;
+      state.showValidBox = false;
+      state.showDeleteBox = false;
+      state.showErrorBox = false;
+      state.showSaveBox = false;
     },
     resetModals(state) {
-      (state.createModale = false),
-        (state.updateModale = false),
-        (state.showAccount = false),
-        (state.showAdminPanel = false),
-        (state.showLoader = false),
-        (state.showValidBox = false),
-        (state.showDeleteBox = false),
-        (state.showErrorBox = false),
-        (state.showSaveBox = false);
+      state.createModale = false;
+      state.updateModale = false;
+      state.showAccount = false;
+      state.showAdminPanel = false;
+      state.showLoader = false;
+      state.showValidBox = false;
+      state.showDeleteBox = false;
+      state.showErrorBox = false;
+      state.showSaveBox = false;
     },
   },
   actions: {

@@ -1,177 +1,3 @@
-<template>
-  <div class="post">
-    <div class="post__infos">
-      <!-- Infos Left -->
-      <div class="post__infos__left">
-        <div class="img-container follow">
-          <a
-            :href="post.link"
-            @click.prevent="$emit('get-user-profile', post)"
-          >
-            <img
-              :src="post.picture"
-              class="follow-img"
-              width="50px"
-              height="auto"
-              alt="photo de profil"
-            />
-          </a>
-
-          <!-- Follow / Unfollow -->
-          <FollowIcon
-            v-show="post.notMyself"
-            :followed="post.followed"
-            :post="post"
-            :followsCount="post.follows"
-            @click.native="followUser(post)"
-          />
-        </div>
-      </div>
-      <!-- Infos Middle -->
-      <div class="middle">
-        <a
-          :href="post.link"
-          class="pseudo bold fz16"
-          @click.prevent="$emit('get-user-profile', post)"
-        >
-          {{ post.pseudo }}
-        </a>
-        <CreatedSince
-          :createdSince="createdSince(post)"
-          :updated="post.updated"
-        />
-      </div>
-      <!-- Infos Right -->
-      <Options :post="post" />
-    </div>
-    <div class="post__content">
-      <PostImage :src="post.media" v-show="post.media != null" />
-      <div class="post__title" v-show="post.title != 'undefined'">
-        <p class="bold fz16">{{ post.title }}</p>
-      </div>
-      <div
-        class="post__text blue-grey"
-        v-show="post.text != 'undefined'"
-      >
-        <p>
-          {{ post.text }}
-        </p>
-      </div>
-    </div>
-    <div class="post__reactions">
-      <LikeIcon
-        :value="post.liked"
-        :likesCount="post.likes"
-        @like="likePost(post)"
-      />
-
-      <CommentIcon
-        :commentsCount="post.commentsCount"
-        @input="showComments = !showComments"
-      />
-
-      <SaveIcon
-        :value="post.saved"
-        :savesCount="post.saves"
-        @save="savePost(post)"
-      />
-    </div>
-
-    <!-- Comments -->
-    <transition name="fadeUp" appear>
-      <div
-        class="post__comments"
-        id="post-comments"
-        v-show="showComments"
-      >
-        <div class="post__comments-container">
-          <div
-            class="posted"
-            v-for="comment in post.comments"
-            :key="comment.commentId"
-          >
-            <div class="comment-container">
-              <div>
-                <div class="post__comments-infos">
-                  <a
-                    :href="
-                      comment.pseudo.toLowerCase().replace(' ', '-')
-                    "
-                    @click.prevent="
-                      $emit('get-user-profile', comment)
-                    "
-                    class="bold"
-                    >{{ comment.pseudo }}</a
-                  >
-                  <CreatedSince
-                    :createdSince="createdSince(comment)"
-                    :updated="comment.updated"
-                  />
-                </div>
-                <p v-if="!comment.updating">
-                  {{ comment.text }}
-                </p>
-                <form
-                  id="update-comment-form"
-                  @submit.prevent="modifyComment(comment)"
-                  v-else
-                >
-                  <textarea
-                    rows="1"
-                    cols="50"
-                    type="text"
-                    id="update-comment-text"
-                    ref="inputUpdComment"
-                    v-model="updatedComment"
-                    required
-                    maxlength="250"
-                  ></textarea>
-                  <button
-                    type="submit"
-                    class="upd-com-btn"
-                    name="publier"
-                  >
-                    <SaveComment />
-                  </button>
-                </form>
-              </div>
-              <div class="options-comment" v-show="!comment.updating">
-                <EditIcon
-                  @click.native="openUpdateComment(comment)"
-                  v-if="comment.userId == userId || isAdmin"
-                />
-                <DeleteIcon
-                  @click.native="deleteComment(comment, post)"
-                  v-if="comment.userId == userId || isAdmin"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <form @submit.prevent="createComment(post)">
-          <textarea
-            rows="1"
-            cols="50"
-            type="text"
-            class="white-border text-comment-input"
-            placeholder="Votre commentaire..."
-            required
-            maxlength="250"
-            v-model="message"
-          ></textarea>
-          <button
-            type="submit"
-            class="orange br30 submit-comment-btn"
-            name="poster"
-          >
-            Poster
-          </button>
-        </form>
-      </div>
-    </transition>
-  </div>
-</template>
-
 <script>
 import http from "../js/http";
 import { mapState, mapGetters } from "vuex";
@@ -190,24 +16,13 @@ export default {
     };
   },
   methods: {
-    setAuthorization() {
-      return {
-        headers: {
-          Authorization: "Bearer " + this.token,
-        },
-      };
-    },
     followUser(post) {
       EventBus.$emit("followUser", post);
     },
 
     likePost(post) {
       http
-        .post(
-          `posts/like/${post.postId}`,
-          {},
-          this.setAuthorization()
-        )
+        .post(`posts/like/${post.postId}`, {}, this.setAuthorization())
         .then((res) => {
           res.status == 200 ? (post.likes -= 1) : (post.likes += 1);
         })
@@ -216,11 +31,7 @@ export default {
 
     savePost(post) {
       http
-        .post(
-          `posts/saves/${post.postId}`,
-          {},
-          this.setAuthorization()
-        )
+        .post(`posts/saves/${post.postId}`, {}, this.setAuthorization())
         .then((res) => {
           res.status == 200 ? (post.saves -= 1) : (post.saves += 1);
         })
@@ -229,11 +40,7 @@ export default {
 
     createComment(post) {
       http
-        .post(
-          `comment/${post.postId}`,
-          { text: this.message },
-          this.setAuthorization()
-        )
+        .post(`comment/${post.postId}`, { text: this.message }, this.setAuthorization())
         .then((res) => {
           post.comments = res.data.commentsArray;
           this.message = "";
@@ -243,20 +50,14 @@ export default {
     },
 
     openUpdateComment(comment) {
-      for (let comment of this.comments) {
-        comment.updating = false;
-      }
+      this.comments.forEach((c) => (c.updating = false));
       comment.updating = true;
       this.updatedComment = comment.text;
     },
 
     modifyComment(comment) {
       http
-        .put(
-          `comment/${comment.commentId}`,
-          { text: this.updatedComment },
-          this.setAuthorization()
-        )
+        .put(`comment/${comment.commentId}`, { text: this.updatedComment }, this.setAuthorization())
         .then((res) => {
           comment.updating = false;
           this.updatedComment = "";
@@ -267,24 +68,15 @@ export default {
     },
 
     deleteComment(comment, post) {
-      if (
-        !confirm("Voulez-vous vraiment supprimer ce commentaire ?")
-      ) {
+      if (!confirm("Voulez-vous vraiment supprimer ce commentaire ?")) {
         return;
       }
       http
-        .delete(
-          `comment/${comment.commentId}`,
-          this.setAuthorization()
-        )
+        .delete(`comment/${comment.commentId}`, this.setAuthorization())
         .then(() => {
           setTimeout(() => {
-            let commentsArray = this.postDataX.find(
-              (x) => x.postId == post.postId
-            ).comments;
-            const index = commentsArray.findIndex(
-              (x) => x.commentId == comment.commentId
-            );
+            let commentsArray = this.postDataX.find((x) => x.postId == post.postId).comments;
+            const index = commentsArray.findIndex((x) => x.commentId == comment.commentId);
             commentsArray.splice(index, 1);
             post.commentsCount--;
           }, 500);
@@ -294,38 +86,26 @@ export default {
     },
 
     createdSince(post) {
-      let timestamp = (Date.now() - Date.parse(post.createdAt)) / 700;
-      let days = Math.floor(timestamp / 86400);
-      let hours = Math.floor(timestamp / 3600) % 24;
-      let minutes = Math.floor(timestamp / 60) % 60;
-      let seconds = Math.floor(timestamp);
+      const timestamp = Math.floor((Date.now() - Date.parse(post.createdAt)) / 1000);
 
-      if (timestamp < 60) {
-        return seconds + " secondes";
+      switch (true) {
+        case timestamp === 1:
+          return timestamp + " seconde";
+        case timestamp < 60:
+          return timestamp + " secondes";
+        case timestamp < 120:
+          return "1 minute";
+        case timestamp < 3600:
+          return Math.floor(timestamp / 60) + " minutes";
+        case timestamp < 7200:
+          return "1 heure";
+        case timestamp < 86400:
+          return Math.floor(timestamp / 3600) + " heures";
+        case timestamp < 172800:
+          return "1 jour";
+        default:
+          return Math.floor(timestamp / 86400) + " jours";
       }
-      if (timestamp >= 60 && timestamp < 120) {
-        return "1 minute";
-      }
-      if (timestamp >= 120 && timestamp < 3600) {
-        return minutes + " minutes";
-      }
-      if (timestamp >= 3600 && timestamp < 7200) {
-        return "1 heure";
-      }
-      if (timestamp >= 7200 && timestamp < 86400) {
-        return hours + " heures";
-      }
-      if (timestamp >= 86400 && timestamp < 172800) {
-        return "1 jour";
-      }
-      if (timestamp >= 172800) {
-        return days + " jours";
-      }
-    },
-  },
-  watch: {
-    message(newValue) {
-      this.$emit("input", newValue);
     },
   },
   computed: {
@@ -357,6 +137,131 @@ export default {
   },
 };
 </script>
+
+<template>
+  <div class="post">
+    <div class="post__infos">
+      <!-- Infos Left -->
+      <div class="post__infos__left">
+        <div class="img-container follow">
+          <a :href="post.link" @click.prevent="$emit('get-user-profile', post)">
+            <img
+              :src="post.picture"
+              class="follow-img"
+              width="50px"
+              height="auto"
+              alt="photo de profil"
+            />
+          </a>
+
+          <!-- Follow / Unfollow -->
+          <FollowIcon
+            v-show="post.notMyself"
+            :followed="post.followed"
+            :post="post"
+            :followsCount="post.follows"
+            @click.native="followUser(post)"
+          />
+        </div>
+      </div>
+      <!-- Infos Middle -->
+      <div class="middle">
+        <a
+          :href="post.link"
+          class="pseudo bold fz16"
+          @click.prevent="$emit('get-user-profile', post)"
+        >
+          {{ post.pseudo }}
+        </a>
+        <CreatedSince :createdSince="createdSince(post)" :updated="post.updated" />
+      </div>
+      <!-- Infos Right -->
+      <Options :post="post" />
+    </div>
+    <div class="post__content">
+      <PostImage :src="post.media" v-show="post.media != null" />
+      <div class="post__title" v-show="post.title != 'undefined'">
+        <p class="bold fz16">{{ post.title }}</p>
+      </div>
+      <div class="post__text blue-grey" v-show="post.text != 'undefined'">
+        <p>
+          {{ post.text }}
+        </p>
+      </div>
+    </div>
+    <div class="post__reactions">
+      <LikeIcon :value="post.liked" :likesCount="post.likes" @like="likePost(post)" />
+
+      <CommentIcon :commentsCount="post.commentsCount" @input="showComments = !showComments" />
+
+      <SaveIcon :value="post.saved" :savesCount="post.saves" @save="savePost(post)" />
+    </div>
+
+    <!-- Comments -->
+    <transition name="fadeUp" appear>
+      <div class="post__comments" id="post-comments" v-show="showComments">
+        <div class="post__comments-container">
+          <div class="posted" v-for="comment in post.comments" :key="comment.commentId">
+            <div class="comment-container">
+              <div>
+                <div class="post__comments-infos">
+                  <a
+                    :href="comment.pseudo.toLowerCase().replace(' ', '-')"
+                    @click.prevent="$emit('get-user-profile', comment)"
+                    class="bold"
+                    >{{ comment.pseudo }}</a
+                  >
+                  <CreatedSince :createdSince="createdSince(comment)" :updated="comment.updated" />
+                </div>
+                <p v-if="!comment.updating">
+                  {{ comment.text }}
+                </p>
+                <form id="update-comment-form" @submit.prevent="modifyComment(comment)" v-else>
+                  <textarea
+                    rows="1"
+                    cols="50"
+                    type="text"
+                    id="update-comment-text"
+                    ref="inputUpdComment"
+                    v-model="updatedComment"
+                    required
+                    maxlength="250"
+                  ></textarea>
+                  <button type="submit" class="upd-com-btn" name="publier">
+                    <SaveComment />
+                  </button>
+                </form>
+              </div>
+              <div class="options-comment" v-show="!comment.updating">
+                <EditIcon
+                  @click.native="openUpdateComment(comment)"
+                  v-if="comment.userId == userId || isAdmin"
+                />
+                <DeleteIcon
+                  @click.native="deleteComment(comment, post)"
+                  v-if="comment.userId == userId || isAdmin"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <form @submit.prevent="createComment(post)">
+          <textarea
+            rows="1"
+            cols="50"
+            type="text"
+            class="white-border text-comment-input"
+            placeholder="Votre commentaire..."
+            required
+            maxlength="250"
+            v-model="message"
+          ></textarea>
+          <button type="submit" class="orange br30 submit-comment-btn" name="poster">Poster</button>
+        </form>
+      </div>
+    </transition>
+  </div>
+</template>
 
 <style lang="scss">
 button.orange {

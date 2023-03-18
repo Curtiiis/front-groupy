@@ -14,33 +14,30 @@
 </template>
 
 <script>
-import {mapState} from 'vuex';
-import * as utils from '../../js/utils';
-import EventBus from '../../js/event-bus';
-import http from '../../js/http';
+import { mapState } from "vuex";
+import * as utils from "../../js/utils";
+import EventBus from "../../js/event-bus";
+import http from "../../js/http";
 
 export default {
-  name: 'Options',
-  props: ['post'],
+  name: "Options",
+  props: ["post"],
   data() {
     return {
       showOptions: false,
     };
   },
   methods: {
-    setAuthorization() {
-      return {
-        headers: {
-          Authorization: 'Bearer ' + this.token,
-        },
-      };
-    },
     reportPost() {
-      if (!confirm('Voulez-vous vraiment signaler ce post ?')) {
+      if (!confirm("Voulez-vous vraiment signaler ce post ?")) {
         return;
       }
       http
-        .post(`posts/reports/${this.post.postId}`, {owner: this.post.userId}, this.setAuthorization())
+        .post(
+          `posts/reports/${this.post.postId}`,
+          { owner: this.post.userId },
+          this.setAuthorization()
+        )
         .then(() => {
           utils.showValidBoxTimer(700);
         })
@@ -50,10 +47,10 @@ export default {
         });
     },
     setDataInUpdateModale() {
-      EventBus.$emit('setDataInUpdateModale', this.post);
+      EventBus.$emit("setDataInUpdateModale", this.post);
     },
     deletePost() {
-      EventBus.$emit('deletePost', this.post);
+      EventBus.$emit("deletePost", this.post);
     },
   },
   computed: {
@@ -61,9 +58,9 @@ export default {
       return this.post.userId == this.userId;
     },
     ...mapState({
-      token: 'token',
-      userId: 'userId',
-      isAdmin: 'isAdmin',
+      token: "token",
+      userId: "userId",
+      isAdmin: "isAdmin",
     }),
   },
 };

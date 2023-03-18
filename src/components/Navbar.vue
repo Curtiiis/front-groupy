@@ -25,13 +25,23 @@
         <transition name="fade" appear>
           <div class="navbar__search__modale" id="search-modale" v-show="showSearchResults">
             <!-- No Result -->
-            <div v-if="results.length == 0 && searchInput.length > 0 && showSearchBar" class="result">
-              <img src="https://cdn4.iconfinder.com/data/icons/tabler-vol-5/24/mood-cry-256.png" alt="Pas de résultat" />
+            <div
+              v-if="results.length == 0 && searchInput.length > 0 && showSearchBar"
+              class="result"
+            >
+              <img
+                src="https://cdn4.iconfinder.com/data/icons/tabler-vol-5/24/mood-cry-256.png"
+                alt="Pas de résultat"
+              />
               Aucun résultat
             </div>
 
             <!-- Result -->
-            <div v-if="searchInput.length > 0 && results.length > 0 && showSearchResults && showSearchBar">
+            <div
+              v-if="
+                searchInput.length > 0 && results.length > 0 && showSearchResults && showSearchBar
+              "
+            >
               <a
                 class="result"
                 v-for="user in results"
@@ -66,24 +76,24 @@
 </template>
 
 <script>
-import {mapState, mapGetters} from 'vuex';
-import * as utils from '../js/utils';
-import http from '../js/http';
-import EventBus from '../js/event-bus';
-import NavbarLogo from './icons/NavbarLogo.vue';
-import CreateIcon from './icons/CreateIcon.vue';
-import CrossMenu from './buttons/CrossMenu.vue';
-import MenuItems from './menu/MenuItems.vue';
-import SearchSvg from './icons/SearchSvg.vue';
-import SearchSvg2 from './icons/SearchSvg2.vue';
+import { mapState, mapGetters } from "vuex";
+import * as utils from "../js/utils";
+import http from "../js/http";
+import EventBus from "../js/event-bus";
+import NavbarLogo from "./icons/NavbarLogo.vue";
+import CreateIcon from "./icons/CreateIcon.vue";
+import CrossMenu from "./buttons/CrossMenu.vue";
+import MenuItems from "./menu/MenuItems.vue";
+import SearchSvg from "./icons/SearchSvg.vue";
+import SearchSvg2 from "./icons/SearchSvg2.vue";
 
 export default {
-  name: 'Navbar',
+  name: "Navbar",
 
   data() {
     return {
       showMobileMenu: false,
-      searchInput: '',
+      searchInput: "",
       showNavbarLogo: true,
       showSearchIcon: true,
       showSearchBar: false,
@@ -107,13 +117,6 @@ export default {
     },
   },
   methods: {
-    setAuthorization() {
-      return {
-        headers: {
-          Authorization: 'Bearer ' + this.token,
-        },
-      };
-    },
     displayAccount() {
       utils.showAdminPanel(false);
       this.showAccount ? utils.showAccount(false) : utils.showAccount(true);
@@ -121,26 +124,26 @@ export default {
 
     displayAdminPanel() {
       utils.showAccount(false);
-      EventBus.$emit('getAllUsers', this.getAllUsers);
+      EventBus.$emit("getAllUsers", this.getAllUsers);
       this.showAdminPanel ? utils.showAdminPanel(false) : utils.showAdminPanel(true);
     },
 
     getUserProfile(user) {
       this.showSearchResults = false;
-      this.searchInput = '';
+      this.searchInput = "";
       if (window.innerWidth <= 768) {
         this.showSearchBar = false;
         setTimeout(() => {
           this.showNavbarLogo = true;
         }, 300);
       }
-      this.$emit('get-user-profile', user);
+      this.$emit("get-user-profile", user);
     },
 
     createIconClick() {
-      this.$store.commit('resetModals');
+      this.$store.commit("resetModals");
       utils.showCreateModale(true);
-      utils.commitSelectedFile('');
+      utils.commitSelectedFile("");
     },
 
     filterResults() {
@@ -161,12 +164,12 @@ export default {
     },
 
     logout() {
-      if (!confirm('Voulez-vous vraiment vous déconnecter ?')) {
+      if (!confirm("Voulez-vous vraiment vous déconnecter ?")) {
         return;
       } else {
         localStorage.clear();
-        this.$store.commit('resetState');
-        this.$router.push('/');
+        this.$store.commit("resetState");
+        this.$router.push("/");
       }
     },
 
@@ -208,38 +211,38 @@ export default {
 
   computed: {
     ...mapState({
-      userId: 'userId',
-      createModale: 'createModale',
-      token: 'token',
-      isAdmin: 'isAdmin',
-      showAccount: 'showAccount',
-      showAdminPanel: 'showAdminPanel',
-      selectedFile: 'selectedFile',
+      userId: "userId",
+      createModale: "createModale",
+      token: "token",
+      isAdmin: "isAdmin",
+      showAccount: "showAccount",
+      showAdminPanel: "showAdminPanel",
+      selectedFile: "selectedFile",
     }),
     ...mapGetters([
-      'userIdGetter',
-      'createGetter',
-      'tokenGetter',
-      'isAdminGetter',
-      'accountGetter',
-      'showAdminPanelGetter',
-      'fileGetter',
+      "userIdGetter",
+      "createGetter",
+      "tokenGetter",
+      "isAdminGetter",
+      "accountGetter",
+      "showAdminPanelGetter",
+      "fileGetter",
     ]),
   },
   watch: {
     mobileMenu(newValue) {
-      this.$emit('input', newValue);
+      this.$emit("input", newValue);
     },
   },
   created() {
     this.mobileMenu = this.value;
-    window.addEventListener('resize', this.onResize);
+    window.addEventListener("resize", this.onResize);
   },
   mounted() {
     this.onResize();
   },
   beforeDestroy() {
-    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener("resize", this.onResize);
   },
 };
 </script>
@@ -385,7 +388,7 @@ $height-navbar: 50px;
 
           &::before,
           &::after {
-            content: '';
+            content: "";
             position: absolute;
             left: 0;
             width: 100%;

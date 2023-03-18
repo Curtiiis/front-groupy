@@ -1,9 +1,6 @@
 <template>
   <div class="home__container">
-    <ValidBox
-      :validBox="showValidBox"
-      @click.native="closeValidBox"
-    />
+    <ValidBox :validBox="showValidBox" @click.native="closeValidBox" />
     <SaveBox v-show="showSaveBox" @click.native="closeSaveBox" />
     <DeleteBox v-if="showDeleteBox" @click.native="closeDeleteBox" />
     <ErrorBox v-show="showErrorBox" @click.native="closeErrorBox" />
@@ -11,10 +8,7 @@
 
     <div class="main">
       <!-- NAVBAR -->
-      <Navbar
-        @get-all-posts="getAllPosts"
-        @get-user-profile="getUserProfile"
-      />
+      <Navbar @get-all-posts="getAllPosts" @get-user-profile="getUserProfile" />
 
       <!-- MAIN CONTENT -->
       <transition name="fade" appear>
@@ -47,7 +41,7 @@
                 @get-all-posts="getAllPosts"
                 @get-user-infos="getCurrentUser"
               />
-              <button @click="getFiveMore">Voir plus</button>
+              <button v-if="showButtonMore" @click="getFiveMore" class="btn-more">Voir plus</button>
             </div>
           </transition>
 
@@ -65,9 +59,6 @@
                 />
               </div>
             </transition>
-            <!-- <div class="more">
-              <button class="more-btn" @click="getSuggestions" name="plus">Voir plus</button>
-            </div> -->
           </div>
 
           <!-- CREATE MODALE -->
@@ -81,8 +72,8 @@
           v-show="showAccount"
           @get-user-profile="getUserProfile"
           @get-all-posts="getAllPosts"
-          @disable-my-account="disableMyAccount"
           @get-one-post="getOnePost"
+          @log-out="logout"
         />
       </transition>
 
@@ -136,16 +127,10 @@ export default {
       noContent: false,
       numberPosts: 5,
       showComments: false,
+      showButtonMore: true,
     };
   },
   methods: {
-    setAuthorization() {
-      return {
-        headers: {
-          Authorization: "Bearer " + this.token,
-        },
-      };
-    },
     closeSaveBox() {
       utils.showSaveBox(false);
     },
@@ -163,31 +148,23 @@ export default {
 
     followUser(item) {
       http
-        .post(
-          `user/follow/${item.userId}`,
-          {},
-          this.setAuthorization()
-        )
+        .post(`user/follow/${item.userId}`, {}, this.setAuthorization())
         .then(() => {
-          this.postDataX
-            .filter((x) => x.userId == item.userId)
-            .forEach((x) => (x.followed = !x.followed));
-          this.suggestionsX
-            .filter((x) => x.userId == item.userId)
-            .forEach((x) => (x.followed = !x.followed));
-          this.userFollowers
-            .filter((x) => x.userId == item.userId)
-            .forEach((x) => (x.followed = !x.followed));
+          function setDataForFollow(dataList) {
+            dataList
+              .filter((x) => x.userId == item.userId)
+              .forEach((x) => (x.followed = !x.followed));
+          }
+          setDataForFollow(this.postDataX);
+          setDataForFollow(this.suggestionsX);
+          setDataForFollow(this.userFollowers);
         })
         .catch((error) => console.log(error));
     },
 
     getSuggestions() {
       http
-        .get(
-          `user/suggestions/${this.userId}`,
-          this.setAuthorization()
-        )
+        .get(`user/suggestions/${this.userId}`, this.setAuthorization())
         .then((response) => utils.commitSuggestions(response.data))
         .catch((error) => console.log(error));
     },
@@ -204,7 +181,6 @@ export default {
       http
         .get(`user/current/${this.userId}`, this.setAuthorization())
         .then((res) => {
-          // console.log('Current user', res.data);
           utils.commitUserData(res.data.userInfos);
           utils.commitSaves(res.data.dataSaves);
         })
@@ -215,6 +191,7 @@ export default {
       utils.showAccount(false);
       utils.showLoader(true);
       utils.showAdminPanel(false);
+      this.showButtonMore = false;
 
       http
         .get(`user/${post.userId}`, this.setAuthorization())
@@ -240,12 +217,9 @@ export default {
 
     getAllPosts() {
       this.$store.commit("resetModals");
+
       http
-        .get(`posts/${this.numberPosts}`, {
-          headers: {
-            Authorization: "Bearer " + this.token,
-          },
-        })
+        .get(`posts/${this.numberPosts}`, this.setAuthorization())
         .then((response) => {
           console.log("Posts", response.data);
           if (response.data.length == 0) {
@@ -256,6 +230,7 @@ export default {
             utils.commitPostData(response.data);
           }
           utils.showLoader(false, 500);
+          this.showButtonMore = true;
         })
         .catch((error) => console.log(error));
       this.getCurrentUser();
@@ -292,25 +267,9 @@ export default {
         });
     },
 
-    disableMyAccount(user) {
-      if (!confirm("Voulez-vous vraiment désactiver ce compte ?")) {
-        return;
-      }
-      http
-        .put(`user/${user.userId}`, {}, this.setAuthorization())
-        .then(() => {
-          console.log("Au revoir " + user.pseudo);
-          this.logout();
-        })
-        .catch((error) => console.log(error));
-    },
-
     onResize() {
       if (window.innerWidth >= 768) {
-        this.tabletView =
-          this.showSearchBar =
-          this.showNavbarLogo =
-            true;
+        this.tabletView = this.showSearchBar = this.showNavbarLogo = true;
         this.showSearchBtn = false;
       } else {
         this.tabletView = this.showSearchBar = false;
@@ -365,7 +324,7 @@ export default {
   mounted() {
     utils.scrollToTop();
     this.getAllPosts();
-    this.getCurrentUser();
+    // this.getCurrentUser();
     this.getSuggestions();
     this.onResize();
     EventBus.$on("getAllPosts", this.getAllPosts);
@@ -391,6 +350,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "../scss/utils/_variables.scss";
 .displayFlex {
   display: flex;
   width: 30px;
@@ -411,6 +371,25 @@ export default {
   align-items: center;
   & p {
     font-size: 20px;
+  }
+}
+
+.btn-more {
+  padding: 8px 16px;
+  font-size: 18px;
+  font-weight: 700;
+  color: $white;
+  background: $bg-shade2;
+  border: none;
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 25px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+
+  &:hover {
+    background: $bg-shade2;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
   }
 }
 
