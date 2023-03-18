@@ -8,21 +8,15 @@
       </div>
       <form id="form" method="post" @submit.prevent="submitLoginForm" @keyup="isFormValid">
         <!-- INPUT - Email -->
-        <div class="form-group" :class="{ success: !$v.user.email.$invalid }">
-          <input
-            :type="email"
-            id="email"
-            name="email"
-            v-model.trim="$v.user.email.$model"
-            required
-            @keyup="debounce('email')"
-          />
-          <label for="email">Email</label>
-          <span></span>
-          <div class="error" v-if="errors.email && $v.user.email.$error">
-            L'email n'est pas valide.
-          </div>
-        </div>
+        <EmailInput
+          :user="user"
+          :$v="$v"
+          :displayErrorEmail="displayErrorEmail"
+          :errorEmail="errorEmail"
+          v-model="user.email"
+          :validation="$v.user.email"
+          :errors="errors"
+        />
 
         <!-- INPUT - Password -->
         <div
@@ -35,6 +29,7 @@
           <input
             :type="showPassword ? 'text' : 'password'"
             id="password"
+            ref="password"
             name="password"
             v-model.trim="$v.user.password.$model"
             required
@@ -61,8 +56,9 @@
           type="submit"
           class="gradientBtn"
           id="submit-btn"
-          :disabled="submitLoginForm"
+          ref="submitBtn"
           name="connexion"
+          :disabled="submitLoginForm"
         >
           Se connecter
         </button>
@@ -80,8 +76,8 @@
 //IMPORTS
 import { mapState, mapGetters } from "vuex";
 import TitleLogo from "../components/TitleLogo.vue";
+import EmailInput from "../components/inputs/EmailInput.vue";
 
-import _ from "lodash";
 import http from "../js/http";
 import * as utils from "../js/utils";
 
@@ -98,6 +94,7 @@ export default {
   name: "Signup",
   components: {
     TitleLogo,
+    EmailInput,
   },
   data() {
     return {
@@ -105,9 +102,11 @@ export default {
       displayContainer: true,
       showPassword: false,
       displayError: false,
+      displayErrorEmail: false,
       showErrorLogin: false,
       errorMessage: "",
       email: "",
+      errorEmail: "",
       user: {
         email: "",
         password: "",
@@ -135,26 +134,6 @@ export default {
     },
   },
   methods: {
-    isFormValid() {
-      const submitBtn = document.querySelector("#submit-btn");
-      this.$v.$touch();
-      !this.$v.$invalid ? (submitBtn.disabled = false) : (submitBtn.disabled = true);
-    },
-
-    debounce: _.debounce(function (inputName) {
-      this.errors[inputName] = this.$v.user[inputName].$error;
-
-      const _inputName = document.getElementById(inputName);
-
-      if (_inputName != null && this.$v.user[inputName].$error) {
-        _inputName.parentElement.classList.add("shake");
-
-        setTimeout(() => {
-          _inputName.parentElement.classList.remove("shake");
-        }, 500);
-      }
-    }, 1000),
-
     errorAnimation() {
       this.showErrorLogin = true;
       const errorLoginMsg = document.querySelector(".errorLogin p");
@@ -170,15 +149,6 @@ export default {
       if (this.$v.$invalid) {
         return;
       }
-      // http({
-      //   method: "post",
-      //   url: "auth/login",
-      //   withCredentials: false,
-      //   data: {
-      //     email: this.$v.user.email.$model,
-      //     password: this.$v.user.password.$model,
-      //   },
-      // })
       http
         .post("auth/login", {
           email: this.$v.user.email.$model,
@@ -194,12 +164,21 @@ export default {
           utils.redirectDelay("/home", 500);
         })
         .catch((error) => {
-          if (error.response.status == 400) {
-            this.errorMessage = "Pseudo/email invalide";
-          }
-          if (error.response.status === 401) {
-            return this.errorAnimation();
-          }
+          const errorTable = [
+            {
+              name: "Pseudo/email invalide",
+              statusCode: 400,
+              action: () => (this.errorMessage = "Pseudo/email invalide"),
+            },
+            {
+              name: "Erreur d'authentification",
+              statusCode: 401,
+              action: () => this.errorAnimation(),
+            },
+          ];
+
+          const errorEntry = errorTable.find((entry) => entry.statusCode === error.response.status);
+          errorEntry.action();
           console.log(error);
         });
     },

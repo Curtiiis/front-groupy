@@ -6,6 +6,11 @@ import Vuelidate from "vuelidate";
 import store from "./store/index";
 import http from "./js/http";
 import axios from "axios";
+import setAuthorization from "./utils/mixins.js";
+import debounce from "./utils/mixins.js";
+import isFormValid from "./utils/mixins.js";
+
+// ICONES
 import LogoutIcon from "./components/icons/LogoutIcon.vue";
 import UserIcon from "./components/icons/UserIcon.vue";
 import UsersIcon from "./components/icons/UsersIcon.vue";
@@ -62,6 +67,11 @@ export const bus = new Vue();
 
 Vue.use(Vuelidate);
 Vue.use(VueRouter);
+
+// MIXINS
+Vue.mixin(setAuthorization);
+Vue.mixin(debounce);
+Vue.mixin(isFormValid);
 
 new Vue({
   router,

@@ -106,7 +106,7 @@
         <h2>Changer le mot de passe</h2>
         <Security />
         <Desactivate
-          @click.native="$emit('disable-my-account', userDataX)"
+          @click.native="disableMyAccount(userDataX)"
           :msg="'Désactiver mon compte'"
           :stat="false"
         />
@@ -138,12 +138,17 @@ export default {
     };
   },
   methods: {
-    setAuthorization() {
-      return {
-        headers: {
-          Authorization: "Bearer " + this.token,
-        },
-      };
+    disableMyAccount(user) {
+      if (!confirm("Voulez-vous vraiment désactiver ce compte ?")) {
+        return;
+      }
+      http
+        .put(`user/${user.userId}`, {}, this.setAuthorization())
+        .then(() => {
+          console.log("Au revoir " + user.pseudo);
+          this.$emit("log-out");
+        })
+        .catch((error) => console.log(error));
     },
 
     changeSetting(e) {
