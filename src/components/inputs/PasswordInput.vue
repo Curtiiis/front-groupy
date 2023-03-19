@@ -3,7 +3,7 @@
     class="form-group"
     :class="{
       success: !$v.user.password1.$invalid,
-      shake: displayErrorPassword,
+      shake: showPasswordError,
     }"
   >
     <input
@@ -12,7 +12,7 @@
       ref="password1"
       name="password1"
       :value="password1"
-      @input="onInput"
+      @input="(e) => $emit('input', e.target.value)"
       required
       @keyup="debounce('password1')"
     />
@@ -21,12 +21,12 @@
       class="far fa-eye"
       :class="{ blue: showPassword1 }"
       id="eye1"
-      @click="$emit('toggle-show-password')"
+      @click="$emit('show-password')"
     ></i>
     <span></span>
     <div class="error" v-if="errors.password1 && $v.user.password1.$error">
-      Le mot de passe doit contenir 8 caractères : 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère
-      spécial.
+      Le mot de passe doit contenir au moins 8 caractères dont 1 majuscule, 1 minuscule, 1 chiffre,
+      1 caractère spécial.
     </div>
     <div class="error">
       {{ errorPassword }}
@@ -45,18 +45,13 @@ export default {
     value: { type: String, default: "" },
     validation: { type: Object, required: true },
     errors: { type: Object, required: true },
-    displayErrorPassword: {
+    showPasswordError: {
       type: Boolean,
       default: false,
     },
     errorPassword: {
       type: String,
       default: "",
-    },
-  },
-  methods: {
-    onInput(e) {
-      this.$emit("input", e.target.value);
     },
   },
 };

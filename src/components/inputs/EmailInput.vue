@@ -3,7 +3,7 @@
     class="form-group"
     :class="{
       success: !$v.user.email.$invalid,
-      shake: displayErrorEmail,
+      shake: showEmailError,
     }"
   >
     <input
@@ -12,9 +12,9 @@
       ref="email"
       name="email"
       :value="value"
-      @input="onInput"
-      required
+      @input="(e) => $emit('input', e.target.value)"
       @keyup="debounce('email')"
+      required
     />
     <label for="email">Email</label>
     <span></span>
@@ -36,16 +36,11 @@ export default {
   props: {
     user: Object,
     $v: Object,
-    displayErrorEmail: Boolean,
+    showEmailError: Boolean,
     errorEmail: String,
     value: { type: String, default: "" },
     validation: { type: Object, required: true },
     errors: { type: Object, required: true },
-  },
-  methods: {
-    onInput(e) {
-      this.$emit("input", e.target.value);
-    },
   },
 };
 </script>

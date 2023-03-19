@@ -9,6 +9,7 @@ import axios from "axios";
 import setAuthorization from "./utils/mixins.js";
 import debounce from "./utils/mixins.js";
 import isFormValid from "./utils/mixins.js";
+import handleError from "./utils/mixins.js";
 
 // ICONES
 import LogoutIcon from "./components/icons/LogoutIcon.vue";
@@ -72,6 +73,7 @@ Vue.use(VueRouter);
 Vue.mixin(setAuthorization);
 Vue.mixin(debounce);
 Vue.mixin(isFormValid);
+Vue.mixin(handleError);
 
 new Vue({
   router,

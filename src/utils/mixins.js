@@ -24,7 +24,17 @@ export default {
 
     isFormValid() {
       this.$v.$touch();
-      this.$refs.submitBtn.disabled = !this.$v.$invalid ? false : true;
+      this.isButtonDisabled = this.$v.$invalid;
+      // this.$refs.submitBtn.disabled = this.$v.$invalid ? true : false;
+    },
+
+    handleError(fieldName, showError, newValue, timeout = 3000) {
+      this[fieldName] = newValue;
+      this[showError] = true;
+      setTimeout(() => {
+        this[fieldName] = "";
+        this[showError] = false;
+      }, timeout);
     },
   },
 };

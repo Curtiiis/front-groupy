@@ -15,7 +15,7 @@
       class="far fa-eye"
       :class="{ blue: showPassword2 }"
       id="eye2"
-      @click="$emit('toggle-show-password')"
+      @click="$emit('show-password')"
     ></i>
     <span></span>
     <div class="error" v-if="errors.password2 && $v.user.password2.$error">
