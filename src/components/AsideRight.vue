@@ -1,24 +1,3 @@
-<!-- <template>
-  <div class="card">
-    <div class="img-container follow">
-      <a :href="item.link" @click.prevent="$emit('get-user-profile', item)">
-        <img :src="item.picture" class="follow-img" width="50px" height="auto" alt="image du follower" />
-      </a>
-      <FollowIcon :followed="item.followed" v-model="item.followed" @click.native="$emit('follow-user', item)" />
-    </div>
-    <a :href="item.link" @click.prevent="$emit('get-user-profile', item)">
-      {{ item.pseudo }}
-    </a>
-  </div>
-</template>
-
-<script>
-export default {
-  name: 'AsideRight',
-  props: ['item'],
-};
-</script> -->
-
 <template>
   <div class="card">
     <div class="img-container follow">

@@ -10,6 +10,7 @@
 @import "./scss/main.scss";
 #app {
   min-width: 320px;
+  // height: 100%;
 }
 .fade-enter,
 .fade-leave-to {

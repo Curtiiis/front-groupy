@@ -24,7 +24,12 @@
             </a>
             <div class="actions-admin-btn">
               <AdminChangeBtn :user="user" @click.native="changeAdminStatus(user)" />
-              <Desactivate @click.native="disableUser(user)" :msg="'Désactiver'" :stat="true" />
+              <Desactivate
+                :user="user"
+                @click.native="disableUser(user)"
+                :msg="'Désactiver'"
+                :stat="true"
+              />
             </div>
           </div>
         </div>
@@ -146,14 +151,6 @@ export default {
     };
   },
   methods: {
-    setAuthorization() {
-      return {
-        headers: {
-          Authorization: "Bearer " + this.token,
-        },
-      };
-    },
-
     deletePost(report) {
       EventBus.$emit("deletePost", report);
     },
@@ -172,6 +169,24 @@ export default {
           utils.showValidBoxTimer(700);
         })
         .catch((err) => console.log(err));
+    },
+
+    disableUser(user) {
+      if (!confirm("Voulez-vous vraiment désactiver ce compte ?")) {
+        return;
+      }
+      http
+        .put(`user/${user.userId}`, {}, this.setAuthorization())
+        .then(() => {
+          console.log("Compte de " + user.pseudo + " désactivé !");
+          console.log(this.$store.state.allUsersX);
+          const index = this.allUsers.findIndex((x) => x.userId == user.userId);
+          utils.showValidBoxTimer(1000);
+          setTimeout(() => {
+            this.allUsers.splice(index, 1);
+          }, 500);
+        })
+        .catch((error) => console.log(error));
     },
 
     getAllUsers() {
@@ -224,23 +239,6 @@ export default {
         .catch((error) => console.log(error));
     },
 
-    disableUser(user) {
-      if (!confirm("Voulez-vous vraiment désactiver ce compte ?")) {
-        return;
-      }
-      http
-        .put(`user/${user.userId}`, {}, this.setAuthorization())
-        .then(() => {
-          console.log("Compte de " + user.pseudo + " désactivé !");
-          const index = this.allUsers.findIndex((x) => x.userId == user.userId);
-          utils.showValidBoxTimer(1000);
-          setTimeout(() => {
-            this.allUsers.splice(index, 1);
-          }, 500);
-        })
-        .catch((error) => console.log(error));
-    },
-
     changeSetting(e) {
       const setting = e.target;
       this.settingShowed = setting["id"];
@@ -257,6 +255,10 @@ export default {
           this.getStatistics();
           break;
       }
+    },
+
+    sendDisableUser(user) {
+      EventBus.$emit("disableUser", user);
     },
   },
   computed: {
