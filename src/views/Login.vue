@@ -4,64 +4,36 @@
     <div class="auth__container">
       <TitleLogo :authType="login" />
       <div class="errorLogin" v-show="showErrorLogin">
-        <p>Ce compte a été désactivé.</p>
+        <p ref="messageDisableAccount">{{ errorMessage }}</p>
       </div>
       <form id="form" method="post" @submit.prevent="submitLoginForm" @keyup="isFormValid">
-        <!-- INPUT - Email -->
         <EmailInput
           :user="user"
           :$v="$v"
-          :displayErrorEmail="displayErrorEmail"
+          :showEmailError="showEmailError"
           :errorEmail="errorEmail"
           v-model="user.email"
           :validation="$v.user.email"
           :errors="errors"
         />
+        <PasswordInput
+          :user="user"
+          :$v="$v"
+          :showPasswordError="showPasswordError"
+          :errorPassword="errorPassword"
+          :password1="user.password1"
+          :showPassword1="showPassword1"
+          v-model="user.password1"
+          :validation="$v.user.password1"
+          :errors="errors"
+          @show-password="showPassword1 = !showPassword1"
+        />
 
-        <!-- INPUT - Password -->
-        <div
-          class="form-group"
-          :class="{
-            success: !$v.user.password.$invalid,
-            shake: displayError,
-          }"
-        >
-          <input
-            :type="showPassword ? 'text' : 'password'"
-            id="password"
-            ref="password"
-            name="password"
-            v-model.trim="$v.user.password.$model"
-            required
-            @keyup="debounce('password')"
-          />
-          <label for="password">Mot de passe</label>
-          <i
-            class="far fa-eye"
-            :class="{ blue: showPassword }"
-            id="eye1"
-            @click="showPassword = !showPassword"
-          ></i>
-          <span></span>
-          <div class="error" v-if="errors.password && $v.user.password.$error">
-            Le mot de passe doit contenir 8 caractères : 1 majuscule, 1 minuscule, 1 chiffre, 1
-            caractère spécial.
-          </div>
-          <div class="error">
-            {{ errorMessage }}
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          class="gradientBtn"
-          id="submit-btn"
-          ref="submitBtn"
-          name="connexion"
-          :disabled="submitLoginForm"
-        >
-          Se connecter
-        </button>
+        <SubmitButton
+          buttonName="connexion"
+          buttonLabel="Se connecter"
+          :disabled="isButtonDisabled"
+        />
       </form>
 
       <div class="signup_link">
@@ -77,6 +49,8 @@
 import { mapState, mapGetters } from "vuex";
 import TitleLogo from "../components/TitleLogo.vue";
 import EmailInput from "../components/inputs/EmailInput.vue";
+import PasswordInput from "../components/inputs/PasswordInput.vue";
+import SubmitButton from "../components/buttons/SubmitButton.vue";
 
 import http from "../js/http";
 import * as utils from "../js/utils";
@@ -95,25 +69,29 @@ export default {
   components: {
     TitleLogo,
     EmailInput,
+    PasswordInput,
+    SubmitButton,
   },
   data() {
     return {
       login: "Connexion",
-      displayContainer: true,
-      showPassword: false,
+      showPassword1: false,
+      showPasswordError: false,
       displayError: false,
-      displayErrorEmail: false,
+      showEmailError: false,
       showErrorLogin: false,
       errorMessage: "",
+      errorPassword: "",
       email: "",
       errorEmail: "",
+      isButtonDisabled: true,
       user: {
         email: "",
-        password: "",
+        password1: "",
       },
       errors: {
         email: false,
-        password: false,
+        password1: false,
       },
     };
   },
@@ -123,7 +101,7 @@ export default {
         required,
         email,
       },
-      password: {
+      password1: {
         required,
         minLength: minLength(8),
         hasNumber,
@@ -134,53 +112,32 @@ export default {
     },
   },
   methods: {
-    errorAnimation() {
-      this.showErrorLogin = true;
-      const errorLoginMsg = document.querySelector(".errorLogin p");
-      errorLoginMsg.classList.add("shake");
+    async submitLoginForm() {
+      if (this.$v.$invalid) return;
 
-      setTimeout(() => {
-        errorLoginMsg.classList.remove("shake");
-      }, 500);
-      return;
-    },
-
-    submitLoginForm() {
-      if (this.$v.$invalid) {
-        return;
-      }
-      http
-        .post("auth/login", {
+      try {
+        const response = await http.post("auth/login", {
           email: this.$v.user.email.$model,
-          password: this.$v.user.password.$model,
-        })
-        .then((response) => {
-          localStorage.setItem("token", response.data.token);
-          utils.commitToken(response.data.token);
-          utils.commitUserId(response.data.userId);
-          utils.commitIsAdmin(response.data.isAdmin);
-
-          utils.showValidBox(true);
-          utils.redirectDelay("/home", 500);
-        })
-        .catch((error) => {
-          const errorTable = [
-            {
-              name: "Pseudo/email invalide",
-              statusCode: 400,
-              action: () => (this.errorMessage = "Pseudo/email invalide"),
-            },
-            {
-              name: "Erreur d'authentification",
-              statusCode: 401,
-              action: () => this.errorAnimation(),
-            },
-          ];
-
-          const errorEntry = errorTable.find((entry) => entry.statusCode === error.response.status);
-          errorEntry.action();
-          console.log(error);
+          password: this.$v.user.password1.$model,
         });
+
+        const { token, userId, isAdmin } = response.data;
+        localStorage.setItem("token", token);
+        utils.commitToken(token);
+        utils.commitUserId(userId);
+        utils.commitIsAdmin(isAdmin);
+
+        utils.showValidBox(true);
+        utils.redirectDelay("/home", 500);
+      } catch (error) {
+        if (error.response.status === 400) {
+          this.errorMessage = "Pseudo/email invalide";
+        }
+        if (error.response.status === 401) {
+          this.errorMessage = "Ce compte a été désactivé.";
+        }
+        this.showErrorLogin = true;
+      }
     },
   },
   computed: {
@@ -212,12 +169,11 @@ export default {
     ]),
   },
   watch: {
-    errorMessage(newValue) {
-      this.errorMessage = newValue;
-      this.displayError = true;
-      setTimeout(() => {
-        this.displayError = false;
-      }, 500);
+    errorEmail(newValue) {
+      this.handleError("errorEmail", "showEmailError", newValue);
+    },
+    errorPassword(newValue) {
+      this.handleError("errorPassword", "showPasswordError", newValue);
     },
   },
 };

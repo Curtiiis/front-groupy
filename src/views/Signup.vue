@@ -13,7 +13,7 @@
           class="form-group"
           :class="{
             success: !$v.user.pseudo.$invalid,
-            shake: displayErrorPseudo,
+            shake: showPseudoError,
           }"
         >
           <input
@@ -41,7 +41,7 @@
         <EmailInput
           :user="user"
           :$v="$v"
-          :displayErrorEmail="displayErrorEmail"
+          :showEmailError="showEmailError"
           :errorEmail="errorEmail"
           v-model="user.email"
           :validation="$v.user.email"
@@ -50,14 +50,14 @@
         <PasswordInput
           :user="user"
           :$v="$v"
-          :displayErrorPassword="displayErrorPassword"
+          :showPasswordError="showPasswordError"
           :errorPassword="errorPassword"
           :password1="user.password1"
           :showPassword1="showPassword1"
           v-model="user.password1"
           :validation="$v.user.password1"
           :errors="errors"
-          @toggle-show-password="showPassword1 = !showPassword1"
+          @show-password="showPassword1 = !showPassword1"
         />
 
         <ConfirmPasswordInput
@@ -68,20 +68,16 @@
           v-model="user.password2"
           :validation="$v.user.password2"
           :errors="errors"
-          @toggle-show-password="showPassword2 = !showPassword2"
+          @show-password="showPassword2 = !showPassword2"
         />
 
-        <button
-          type="submit"
-          class="gradientBtn"
-          id="submit-btn"
-          ref="submitBtn"
-          name="inscription"
-          :disabled="submitSignupForm"
-        >
-          S'inscrire
-        </button>
+        <SubmitButton
+          buttonName="inscription"
+          buttonLabel="S'inscrire"
+          :disabled="isButtonDisabled"
+        />
       </form>
+
       <p class="cgu">
         En créant un compte, vous acceptez les
         <button id="cgu-button" @click="showModal = !showModal" name="CGU">CGU</button>
@@ -102,6 +98,7 @@ import TitleLogo from "../components/TitleLogo.vue";
 import EmailInput from "../components/inputs/EmailInput.vue";
 import PasswordInput from "../components/inputs/PasswordInput.vue";
 import ConfirmPasswordInput from "../components/inputs/ConfirmPasswordInput.vue";
+import SubmitButton from "../components/buttons/SubmitButton.vue";
 import Modale from "./Modale.vue";
 
 import http from "../js/http";
@@ -122,15 +119,16 @@ export default {
     Modale,
     EmailInput,
     PasswordInput,
+    SubmitButton,
     ConfirmPasswordInput,
   },
   data() {
     return {
       signup: "Inscription",
       showModal: false,
-      displayErrorPseudo: false,
-      displayErrorEmail: false,
-      displayErrorPassword: false,
+      showPseudoError: false,
+      showEmailError: false,
+      showPasswordError: false,
       displayValidBox: false,
       errorPseudo: "",
       errorEmail: "",
@@ -139,6 +137,7 @@ export default {
       showPassword2: false,
       pseudo: "",
       email: "",
+      isButtonDisabled: true,
       user: {
         pseudo: "",
         email: "",
@@ -201,28 +200,25 @@ export default {
       } catch (error) {
         if (error.response && error.response.status === 401) {
           this.errorEmail = "Ce pseudo/email est déjà pris.";
+          return;
         }
+        if (error.response && error.response.status === 500) {
+          this.errorEmail = "Impossible d'envoyer votre demande (erreur serveur)";
+          return;
+        }
+        throw error;
       }
-    },
-
-    handleError(fieldName, displayErrorName, newValue, timeout = 3000) {
-      this[fieldName] = newValue;
-      this[displayErrorName] = true;
-      setTimeout(() => {
-        this[fieldName] = "";
-        this[displayErrorName] = false;
-      }, timeout);
     },
   },
   watch: {
     errorPseudo(newValue) {
-      this.handleError("errorPseudo", "displayErrorPseudo", newValue);
+      this.handleError("errorPseudo", "showPseudoError", newValue);
     },
     errorEmail(newValue) {
-      this.handleError("errorEmail", "displayErrorEmail", newValue);
+      this.handleError("errorEmail", "showEmailError", newValue);
     },
     errorPassword(newValue) {
-      this.handleError("errorPassword", "displayErrorPassword", newValue);
+      this.handleError("errorPassword", "showPasswordError", newValue);
     },
   },
 };

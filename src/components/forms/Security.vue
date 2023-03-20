@@ -6,7 +6,7 @@
         class="form-group"
         :class="{
           success: !$v.user.password1.$invalid,
-          shake: displayErrorPassword,
+          shake: showPasswordError,
         }"
       >
         <input
@@ -18,12 +18,17 @@
           @keyup="debounce('password1')"
         />
         <label for="password1">Mot de passe</label>
-        <i class="far fa-eye" :class="{blue: showPassword1}" id="eye1" @click="showPassword1 = !showPassword1"></i>
+        <i
+          class="far fa-eye"
+          :class="{ blue: showPassword1 }"
+          id="eye1"
+          @click="showPassword1 = !showPassword1"
+        ></i>
         <span></span>
       </div>
 
       <!-- INPUT - Confirm Password -->
-      <div class="form-group" :class="{success: !$v.user.password2.$invalid}">
+      <div class="form-group" :class="{ success: !$v.user.password2.$invalid }">
         <input
           :type="showPassword2 ? 'text' : 'password'"
           id="password2"
@@ -33,19 +38,34 @@
           @keyup="debounce('password2')"
         />
         <label for="password2">Confirmer le mot de passe</label>
-        <i class="far fa-eye" :class="{blue: showPassword2}" id="eye2" @click="showPassword2 = !showPassword2"></i>
+        <i
+          class="far fa-eye"
+          :class="{ blue: showPassword2 }"
+          id="eye2"
+          @click="showPassword2 = !showPassword2"
+        ></i>
         <span></span>
       </div>
 
-      <button type="submit" class="gradientBtn" name="enregistrer" id="submit-btn" ref="submit-btn" :disabled="submitSignupForm">
+      <button
+        type="submit"
+        class="gradientBtn"
+        name="enregistrer"
+        id="submit-btn"
+        ref="submit-btn"
+        :disabled="submitSignupForm"
+      >
         Enregistrer
       </button>
     </form>
     <div class="error" v-if="errors.password1 && $v.user.password1.$error">
-      Le mot de passe doit contenir au moins 8 caractères : 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial.
+      Le mot de passe doit contenir au moins 8 caractères : 1 majuscule, 1 minuscule, 1 chiffre, 1
+      caractère spécial.
       <hr />
     </div>
-    <div class="error" v-if="errors.password2 && $v.user.password2.$error">Les deux mots de passe doivent être identiques.</div>
+    <div class="error" v-if="errors.password2 && $v.user.password2.$error">
+      Les deux mots de passe doivent être identiques.
+    </div>
     <div class="error">
       {{ errorPassword }}
     </div>
@@ -53,27 +73,32 @@
 </template>
 
 <script>
-import _ from 'lodash';
-import http from '../../js/http';
-import {mapState, mapGetters, mapMutations} from 'vuex';
-import store from '../../store/index';
+import _ from "lodash";
+import http from "../../js/http";
+import { mapState, mapGetters, mapMutations } from "vuex";
+import store from "../../store/index";
 
-import {required, minLength, maxLength, sameAs} from 'vuelidate/lib/validators';
+import { required, minLength, maxLength, sameAs } from "vuelidate/lib/validators";
 
-import {hasNumber, hasLowercaseLetter, hasCapitalcaseLetter, hasSpecialCharacter} from '../../validators/password';
+import {
+  hasNumber,
+  hasLowercaseLetter,
+  hasCapitalcaseLetter,
+  hasSpecialCharacter,
+} from "../../validators/password";
 
 export default {
-  name: 'Security',
+  name: "Security",
   data() {
     return {
-      displayErrorPassword: false,
+      showPasswordError: false,
       displayValidBox: false,
-      errorPassword: '',
+      errorPassword: "",
       showPassword1: false,
       showPassword2: false,
       user: {
-        password1: '',
-        password2: '',
+        password1: "",
+        password2: "",
       },
       errors: {
         password1: false,
@@ -100,14 +125,14 @@ export default {
         hasLowercaseLetter,
         hasCapitalcaseLetter,
         hasSpecialCharacter,
-        sameAsPassword: sameAs('password1'),
+        sameAsPassword: sameAs("password1"),
       },
     },
   },
   methods: {
-    ...mapMutations(['updateUserId']),
+    ...mapMutations(["updateUserId"]),
     isFormValid() {
-      const submitBtn = document.querySelector('#submit-btn');
+      const submitBtn = document.querySelector("#submit-btn");
       this.$v.$touch();
       !this.$v.$invalid ? (submitBtn.disabled = false) : (submitBtn.disabled = true);
     },
@@ -118,10 +143,10 @@ export default {
       const _inputName = document.getElementById(inputName);
 
       if (_inputName != null && this.$v.user[inputName].$error) {
-        _inputName.parentElement.classList.add('shake');
+        _inputName.parentElement.classList.add("shake");
 
         setTimeout(() => {
-          _inputName.parentElement.classList.remove('shake');
+          _inputName.parentElement.classList.remove("shake");
         }, 500);
       }
     }, 700),
@@ -129,7 +154,7 @@ export default {
     submitSignupForm() {
       this.$v.$touch();
       if (!this.$v.$invalid) {
-        store.commit('changeState', {
+        store.commit("changeState", {
           showSaveBox: true,
         });
         let userId = this.$store.state.userId;
@@ -141,14 +166,14 @@ export default {
             },
             {
               headers: {
-                Authorization: 'Bearer ' + localStorage.getItem('token'),
+                Authorization: "Bearer " + localStorage.getItem("token"),
               },
             }
           )
           .then((res) => {
             res;
             setTimeout(() => {
-              store.commit('changeState', {
+              store.commit("changeState", {
                 showSaveBox: false,
               });
             }, 700);
@@ -162,22 +187,22 @@ export default {
             }
           });
       } else {
-        console.log('Non soumis !');
+        console.log("Non soumis !");
         return;
       }
     },
   },
   computed: {
-    ...mapState(['userId', 'showSaveBox']),
-    ...mapGetters(['userIdGetter', 'saveBoxGetter']),
+    ...mapState(["userId", "showSaveBox"]),
+    ...mapGetters(["userIdGetter", "saveBoxGetter"]),
   },
   watch: {
     errorPassword(newValue) {
       this.errorPassword = newValue;
-      this.displayErrorPassword = true;
+      this.showPasswordError = true;
       setTimeout(() => {
-        this.displayErrorPassword = false;
-        this.errorPassword = '';
+        this.showPasswordError = false;
+        this.errorPassword = "";
       }, 3000);
     },
   },

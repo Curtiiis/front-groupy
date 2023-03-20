@@ -221,14 +221,12 @@ export default {
       http
         .get(`posts/${this.numberPosts}`, this.setAuthorization())
         .then((response) => {
-          console.log("Posts", response.data);
           if (response.data.length == 0) {
             this.noPosts = true;
             utils.commitPostData([]);
-          } else {
-            this.noPosts = false;
-            utils.commitPostData(response.data);
           }
+          this.noPosts = false;
+          utils.commitPostData(response.data);
           utils.showLoader(false, 500);
           this.showButtonMore = true;
         })
